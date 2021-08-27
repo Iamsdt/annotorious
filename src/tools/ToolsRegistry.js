@@ -3,66 +3,66 @@ import RubberbandRectTool from './rectangle/RubberbandRectTool';
 import RubberbandPolygonTool from './polygon/RubberbandPolygonTool';
 
 export default class ToolRegistry extends EventEmitter {
- 
-  constructor(g, config, env) {
-    super(); 
 
-    // SVG annotation layer group
-    this._g = g;
+    constructor(g, config, env) {
+        super();
 
-    // Annotorious user config
-    this._config = config;
+        // SVG annotation layer group
+        this._g = g;
 
-    // Environment settings
-    this._env = env;
+        // Annotorious user config
+        this._config = config;
 
-    // Registered tool implementations
-    this._registered = [
-      RubberbandRectTool,
-      RubberbandPolygonTool
-    ];
+        // Environment settings
+        this._env = env;
 
-    this.setCurrent(RubberbandRectTool);
-  }
+        // Registered tool implementations
+        this._registered = [
+            RubberbandRectTool,
+            RubberbandPolygonTool
+        ];
 
-  listTools = () =>
-    this._registered.map(impl => impl.identifier);
+        this.setCurrent(RubberbandRectTool);
+    }
 
-  registerTool = impl =>
-    this._registered.push(impl);
+    listTools = () =>
+        this._registered.map(impl => impl.identifier);
 
-  unregisterTool = id =>
-    this._registered = this._registered.filter(impl => impl.identifier !== id);
+    registerTool = impl =>
+        this._registered.push(impl);
 
-  /** 
-   * Sets a drawing tool by providing an implementation, or the ID
-   * of a built-in toll.
-   */
-  setCurrent = toolOrId => {
-    const Tool = (typeof toolOrId === 'string' || toolOrId instanceof String) ?
-      this._registered.find(impl => impl.identifier === toolOrId) :
-      toolOrId;
+    unregisterTool = id =>
+        this._registered = this._registered.filter(impl => impl.identifier !== id);
 
-    this._current = new Tool(this._g, this._config, this._env);
-    this._current.on('startSelection', pt => this.emit('startSelection', pt));
-    this._current.on('complete', evt => this.emit('complete', evt));
-    this._current.on('cancel', evt => this.emit('cancel', evt));
-  }
+    /**
+     * Sets a drawing tool by providing an implementation, or the ID
+     * of a built-in toll.
+     */
+    setCurrent = toolOrId => {
+        const Tool = (typeof toolOrId === 'string' || toolOrId instanceof String) ?
+            this._registered.find(impl => impl.identifier === toolOrId) :
+            toolOrId;
 
-  forAnnotation = annotation => {
-    // First target
-    const [ target, ..._ ] = annotation.targets;
-    const renderedVia = target.renderedVia?.name;
+        this._current = new Tool(this._g, this._config, this._env);
+        this._current.on('startSelection', pt => this.emit('startSelection', pt));
+        this._current.on('complete', evt => this.emit('complete', evt));
+        this._current.on('cancel', evt => this.emit('cancel', evt));
+    }
 
-    const Tool = renderedVia ?
-      this._registered.find(impl => impl.identifier === renderedVia) :
-      this._registered.find(impl => impl.supports(annotation));
+    forAnnotation = annotation => {
+        // First target
+        const [target, ..._] = annotation.targets;
+        const renderedVia = target.renderedVia?.name;
 
-    return Tool ? new Tool(this._g, this._config, this._env) : null;
-  }
+        const Tool = renderedVia ?
+            this._registered.find(impl => impl.identifier === renderedVia) :
+            this._registered.find(impl => impl.supports(annotation));
 
-  get current() {
-    return this._current;
-  }
-  
+        return Tool ? new Tool(this._g, this._config, this._env) : null;
+    }
+
+    get current() {
+        return this._current;
+    }
+
 }

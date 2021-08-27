@@ -2,12 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Emitter from 'tiny-emitter';
 import ImageAnnotator from './ImageAnnotator';
-import {
-  Selection,
-  WebAnnotation,
-  createEnvironment,
-  setLocale
-} from '@recogito/recogito-client-core';
+import {createEnvironment, Selection, setLocale, WebAnnotation} from '@recogito/recogito-client-core';
 
 import '@recogito/recogito-client-core/themes/default';
 
@@ -17,234 +12,240 @@ import '@recogito/recogito-client-core/themes/default';
  */
 export class Annotorious {
 
-  constructor(config) {
-    // Programmatic calls to this instance from outside are forwarded
-    // through a ref
-    this._app = React.createRef();
+    constructor(config) {
+        // Programmatic calls to this instance from outside are forwarded
+        // through a ref
+        this._app = React.createRef();
 
-    // Event handling via tiny-emitter
-    this._emitter = new Emitter();
+        // Event handling via tiny-emitter
+        this._emitter = new Emitter();
 
-    // TODO .headless option is deprecated!
-    config.disableEditor = config.disableEditor || config.headless;
+        // TODO .headless option is deprecated!
+        config.disableEditor = config.disableEditor || config.headless;
 
-    // Host app may supply the image as either a DOM node or ID - normalize
-    const imageEl = (config.image.nodeType) ?
-      config.image : document.getElementById(config.image);
+        // Host app may supply the image as either a DOM node or ID - normalize
+        const imageEl = (config.image.nodeType) ?
+            config.image : document.getElementById(config.image);
 
-    // Wrapper div might produce unwanted margin at the bottom otherwise!
-    imageEl.style.display = 'block';
+        // Wrapper div might produce unwanted margin at the bottom otherwise!
+        imageEl.style.display = 'block';
 
-    // Store image reference in the Environment
-    this._env = createEnvironment();
-    this._env.image = imageEl;
+        // Store image reference in the Environment
+        this._env = createEnvironment();
+        this._env.image = imageEl;
+        //lets take height and width from config
+        // and put this things into env
+        // this will fix the resize issues
+        this._env.height = config.height ?? 0;
+        this._env.width = config.width ?? 0;
 
-    setLocale(config.locale, config.messages);
 
-    // We'll wrap the image in a DIV ('_element'). The application
-    // container DIV, which holds the editor popup, will be attached
-    // as a child to the same wrapper element (=a sibling to the image
-    // element), so that editor and image share the same offset coordinate
-    // space.
-    this._element = document.createElement('DIV');
-    this._element.style.position = 'relative';
-    this._element.style.display = 'inline-block';
+        setLocale(config.locale, config.messages);
 
-    imageEl.parentNode.insertBefore(this._element, imageEl);
-    this._element.appendChild(imageEl);
+        // We'll wrap the image in a DIV ('_element'). The application
+        // container DIV, which holds the editor popup, will be attached
+        // as a child to the same wrapper element (=a sibling to the image
+        // element), so that editor and image share the same offset coordinate
+        // space.
+        this._element = document.createElement('DIV');
+        this._element.style.position = 'relative';
+        this._element.style.display = 'inline-block';
 
-    this._appContainerEl = document.createElement('DIV');
-    this._element.appendChild(this._appContainerEl);
+        imageEl.parentNode.insertBefore(this._element, imageEl);
+        this._element.appendChild(imageEl);
 
-    // A basic ImageAnnotator with just a comment and a tag widget
-    ReactDOM.render(
-      <ImageAnnotator
-        ref={this._app}
-        env={this._env}
-        wrapperEl={this._element}
-        config={config}
-        onSelectionStarted={this.handleSelectionStarted}
-        onSelectionCreated={this.handleSelectionCreated}
-        onSelectionTargetChanged={this.handleSelectionTargetChanged}
-        onAnnotationCreated={this.handleAnnotationCreated}
-        onAnnotationSelected={this.handleAnnotationSelected}
-        onAnnotationUpdated={this.handleAnnotationUpdated}
-        onAnnotationDeleted={this.handleAnnotationDeleted}
-        onCancelSelected={this.handleCancelSelected}
-        onClickAnnotation={this.handleClickAnnotation}
-        onMouseEnterAnnotation={this.handleMouseEnterAnnotation}
-        onMouseLeaveAnnotation={this.handleMouseLeaveAnnotation} />, this._appContainerEl);
-  }
+        this._appContainerEl = document.createElement('DIV');
+        this._element.appendChild(this._appContainerEl);
 
-  /********************/
-  /*  External events */
-  /********************/
+        // A basic ImageAnnotator with just a comment and a tag widget
+        ReactDOM.render(
+            <ImageAnnotator
+                ref={this._app}
+                env={this._env}
+                wrapperEl={this._element}
+                config={config}
+                onSelectionStarted={this.handleSelectionStarted}
+                onSelectionCreated={this.handleSelectionCreated}
+                onSelectionTargetChanged={this.handleSelectionTargetChanged}
+                onAnnotationCreated={this.handleAnnotationCreated}
+                onAnnotationSelected={this.handleAnnotationSelected}
+                onAnnotationUpdated={this.handleAnnotationUpdated}
+                onAnnotationDeleted={this.handleAnnotationDeleted}
+                onCancelSelected={this.handleCancelSelected}
+                onClickAnnotation={this.handleClickAnnotation}
+                onMouseEnterAnnotation={this.handleMouseEnterAnnotation}
+                onMouseLeaveAnnotation={this.handleMouseLeaveAnnotation}/>, this._appContainerEl);
+    }
 
-  handleAnnotationCreated = (annotation, overrideId) =>
-    this._emitter.emit('createAnnotation', annotation.underlying, overrideId);
+    /********************/
+    /*  External events */
+    /********************/
 
-  handleAnnotationDeleted = annotation =>
-    this._emitter.emit('deleteAnnotation', annotation.underlying);
+    handleAnnotationCreated = (annotation, overrideId) =>
+        this._emitter.emit('createAnnotation', annotation.underlying, overrideId);
 
-  handleAnnotationSelected = (annotation, elem) =>
-    this._emitter.emit('selectAnnotation', annotation.underlying, elem);
+    handleAnnotationDeleted = annotation =>
+        this._emitter.emit('deleteAnnotation', annotation.underlying);
 
-  handleAnnotationUpdated = (annotation, previous) =>
-    this._emitter.emit('updateAnnotation', annotation.underlying, previous.underlying);
+    handleAnnotationSelected = (annotation, elem) =>
+        this._emitter.emit('selectAnnotation', annotation.underlying, elem);
 
-  handleCancelSelected = annotation =>
-    this._emitter.emit('cancelSelected', annotation.underlying);
+    handleAnnotationUpdated = (annotation, previous) =>
+        this._emitter.emit('updateAnnotation', annotation.underlying, previous.underlying);
 
-  handleClickAnnotation = (annotation, elem) =>
-    this._emitter.emit('clickAnnotation', annotation.underlying, elem);
+    handleCancelSelected = annotation =>
+        this._emitter.emit('cancelSelected', annotation.underlying);
 
-  handleSelectionCreated = selection =>
-    this._emitter.emit('createSelection', selection.underlying);
+    handleClickAnnotation = (annotation, elem) =>
+        this._emitter.emit('clickAnnotation', annotation.underlying, elem);
 
-  handleSelectionStarted = pt =>
-    this._emitter.emit('startSelection', pt);
+    handleSelectionCreated = selection =>
+        this._emitter.emit('createSelection', selection.underlying);
 
-  handleSelectionTargetChanged = target =>
-    this._emitter.emit('changeSelectionTarget', target);
+    handleSelectionStarted = pt =>
+        this._emitter.emit('startSelection', pt);
 
-  handleMouseEnterAnnotation = (annotation, elem) =>
-    this._emitter.emit('mouseEnterAnnotation', annotation.underlying, elem);
+    handleSelectionTargetChanged = target =>
+        this._emitter.emit('changeSelectionTarget', target);
 
-  handleMouseLeaveAnnotation = (annotation, elem) =>
-    this._emitter.emit('mouseLeaveAnnotation', annotation.underlying, elem);
+    handleMouseEnterAnnotation = (annotation, elem) =>
+        this._emitter.emit('mouseEnterAnnotation', annotation.underlying, elem);
 
-  /******************/
-  /*  External API  */
-  /******************/
+    handleMouseLeaveAnnotation = (annotation, elem) =>
+        this._emitter.emit('mouseLeaveAnnotation', annotation.underlying, elem);
 
-  // Common shorthand for handling annotationOrId args
-  _wrap = annotationOrId =>
-    annotationOrId?.type === 'Annotation' ? new WebAnnotation(annotationOrId) : annotationOrId;
+    /******************/
+    /*  External API  */
+    /******************/
 
-  addAnnotation = (annotation, readOnly) =>
-    this._app.current.addAnnotation(new WebAnnotation(annotation, { readOnly }));
+    // Common shorthand for handling annotationOrId args
+    _wrap = annotationOrId =>
+        annotationOrId?.type === 'Annotation' ? new WebAnnotation(annotationOrId) : annotationOrId;
 
-  addDrawingTool = plugin =>
-    this._app.current.addDrawingTool(plugin);
+    addAnnotation = (annotation, readOnly) =>
+        this._app.current.addAnnotation(new WebAnnotation(annotation, {readOnly}));
 
-  cancelSelected = () =>
-    this._app.current.cancelSelected();
+    addDrawingTool = plugin =>
+        this._app.current.addDrawingTool(plugin);
 
-  clearAnnotations = () =>
-    this.setAnnotations([]);
+    cancelSelected = () =>
+        this._app.current.cancelSelected();
 
-  clearAuthInfo = () =>
-    this._env.user = null;
+    clearAnnotations = () =>
+        this.setAnnotations([]);
 
-  get disableEditor() {
-    return this._app.current.disableEditor;
-  }
+    clearAuthInfo = () =>
+        this._env.user = null;
 
-  set disableEditor(disabled) {
-    this._app.current.disableEditor = disabled;
-  }
+    get disableEditor() {
+        return this._app.current.disableEditor;
+    }
 
-  get disableSelect() {
-    return this._app.current.disableSelect;
-  }
+    set disableEditor(disabled) {
+        this._app.current.disableEditor = disabled;
+    }
 
-  set disableSelect(select) {
-    this._app.current.disableSelect = select;
-  }
+    get disableSelect() {
+        return this._app.current.disableSelect;
+    }
 
-  destroy = () => {
-    ReactDOM.unmountComponentAtNode(this._appContainerEl);
-    this._element.parentNode.insertBefore(this._env.image, this._element);
-    this._element.parentNode.removeChild(this._element);
-  }
+    set disableSelect(select) {
+        this._app.current.disableSelect = select;
+    }
 
-  getAnnotations = () => {
-    const annotations = this._app.current.getAnnotations();
-    return annotations.map(a => a.underlying);
-  }
+    destroy = () => {
+        ReactDOM.unmountComponentAtNode(this._appContainerEl);
+        this._element.parentNode.insertBefore(this._env.image, this._element);
+        this._element.parentNode.removeChild(this._element);
+    }
 
-  getSelected = () => {
-    const selected = this._app.current.getSelected();
-    return selected?.underlying;
-  }
+    getAnnotations = () => {
+        const annotations = this._app.current.getAnnotations();
+        return annotations.map(a => a.underlying);
+    }
 
-  getSelectedImageSnippet = () =>
-    this._app.current.getSelectedImageSnippet();
+    getSelected = () => {
+        const selected = this._app.current.getSelected();
+        return selected?.underlying;
+    }
 
-  listDrawingTools = () =>
-    this._app.current.listDrawingTools();
+    getSelectedImageSnippet = () =>
+        this._app.current.getSelectedImageSnippet();
 
-  loadAnnotations = url => fetch(url)
-    .then(response => response.json()).then(annotations => {
-      this.setAnnotations(annotations);
-      return annotations;
-    });
+    listDrawingTools = () =>
+        this._app.current.listDrawingTools();
 
-  off = (event, callback) =>
-    this._emitter.off(event, callback);
+    loadAnnotations = url => fetch(url)
+        .then(response => response.json()).then(annotations => {
+            this.setAnnotations(annotations);
+            return annotations;
+        });
 
-  on = (event, handler) =>
-    this._emitter.on(event, handler);
+    off = (event, callback) =>
+        this._emitter.off(event, callback);
 
-  once = (event, handler) =>
-    this._emitter.once(event, handler);
+    on = (event, handler) =>
+        this._emitter.on(event, handler);
 
-  get readOnly() {
-    return this._app.current.readOnly;
-  }
+    once = (event, handler) =>
+        this._emitter.once(event, handler);
 
-  set readOnly(readOnly) {
-    this._app.current.readOnly = readOnly;
-  }
+    get readOnly() {
+        return this._app.current.readOnly;
+    }
 
-  removeAnnotation = annotationOrId =>
-    this._app.current.removeAnnotation(this._wrap(annotationOrId));
+    set readOnly(readOnly) {
+        this._app.current.readOnly = readOnly;
+    }
 
-  saveSelected = () =>
-    this._app.current.saveSelected();
+    removeAnnotation = annotationOrId =>
+        this._app.current.removeAnnotation(this._wrap(annotationOrId));
 
-  selectAnnotation = annotationOrId => {
-    const selected = this._app.current.selectAnnotation(this._wrap(annotationOrId));
-    return selected?.underlying;
-  }
+    saveSelected = () =>
+        this._app.current.saveSelected();
 
-  setAnnotations = a => {
-    const annotations = a || []; // Allow null arg
-    const webannotations = annotations.map(a => new WebAnnotation(a));
-    this._app.current.setAnnotations(webannotations);
-  }
+    selectAnnotation = annotationOrId => {
+        const selected = this._app.current.selectAnnotation(this._wrap(annotationOrId));
+        return selected?.underlying;
+    }
 
-  setAuthInfo = authinfo =>
-    this._env.user = authinfo;
+    setAnnotations = a => {
+        const annotations = a || []; // Allow null arg
+        const webannotations = annotations.map(a => new WebAnnotation(a));
+        this._app.current.setAnnotations(webannotations);
+    }
 
-  setDrawingTool = shape =>
-    this._app.current.setDrawingTool(shape);
+    setAuthInfo = authinfo =>
+        this._env.user = authinfo;
 
-  setServerTime = timestamp =>
-    this._env.setServerTime(timestamp);
+    setDrawingTool = shape =>
+        this._app.current.setDrawingTool(shape);
 
-  setVisible = visible =>
-    this._app.current.setVisible(visible);
+    setServerTime = timestamp =>
+        this._env.setServerTime(timestamp);
 
-  updateSelected = (annotation, saveImmediately) => {
-    let updated = null;
+    setVisible = visible =>
+        this._app.current.setVisible(visible);
 
-    if (annotation.type === 'Annotation')
-      updated = new WebAnnotation(annotation);
-    else if (annotation.type === 'Selection')
-      updated = new Selection(annotation.target, annotation.body);
+    updateSelected = (annotation, saveImmediately) => {
+        let updated = null;
 
-    if (updated)
-      this._app.current.updateSelected(updated, saveImmediately);
-  }
+        if (annotation.type === 'Annotation')
+            updated = new WebAnnotation(annotation);
+        else if (annotation.type === 'Selection')
+            updated = new Selection(annotation.target, annotation.body);
 
-  get widgets() {
-    return this._app.current.widgets;
-  }
+        if (updated)
+            this._app.current.updateSelected(updated, saveImmediately);
+    }
 
-  set widgets(widgets) {
-    this._app.current.widgets = widgets;
-  }
+    get widgets() {
+        return this._app.current.widgets;
+    }
+
+    set widgets(widgets) {
+        this._app.current.widgets = widgets;
+    }
 
 }
 

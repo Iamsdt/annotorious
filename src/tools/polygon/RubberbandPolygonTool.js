@@ -7,77 +7,77 @@ import Tool from '../Tool';
  */
 export default class RubberbandPolygonTool extends Tool {
 
-  constructor(g, config, env) {
-    super(g, config, env);
+    constructor(g, config, env) {
+        super(g, config, env);
 
-    this._isDrawing = false;
-  }
-
-  startDrawing = (x, y) => {
-    this._isDrawing = true;
-    
-    this.attachListeners({
-      mouseMove: this.onMouseMove,
-      mouseUp: this.onMouseUp,
-      dblClick: this.onDblClick
-    });
-    
-    this.rubberband = new RubberbandPolygon([ x, y ], this.g, this.env);
-  }
-
-  stop = () => {
-    this.detachListeners();
-    
-    this._isDrawing = false;
-
-    if (this.rubberband) {
-      this.rubberband.destroy();
-      this.rubberband = null;
+        this._isDrawing = false;
     }
-  }
 
-  onMouseMove = (x, y) =>
-    this.rubberband.dragTo([ x, y ]);
+    startDrawing = (x, y) => {
+        this._isDrawing = true;
 
-  onMouseUp = (x, y) => {
-    const { width, height } = this.rubberband.getBoundingClientRect();
+        this.attachListeners({
+            mouseMove: this.onMouseMove,
+            mouseUp: this.onMouseUp,
+            dblClick: this.onDblClick
+        });
 
-    const minWidth = this.config.minSelectionWidth || 4;
-    const minHeight = this.config.minSelectionHeight || 4;
-    
-    if (width >= minWidth || height >= minHeight) {
-      this.rubberband.addPoint([ x, y ]);
-    } else {
-      this.emit('cancel');
-      this.stop();
+        this.rubberband = new RubberbandPolygon([x, y], this.g, this.env);
     }
-  }
 
-  onDblClick = (x, y) => {
-    this._isDrawing = false;
+    stop = () => {
+        this.detachListeners();
 
-    this.rubberband.addPoint([ x, y ]);
+        this._isDrawing = false;
 
-    const shape = this.rubberband.element;
-    shape.annotation = this.rubberband.toSelection();
-    this.emit('complete', shape);
+        if (this.rubberband) {
+            this.rubberband.destroy();
+            this.rubberband = null;
+        }
+    }
 
-    this.stop();
-  }
+    onMouseMove = (x, y) =>
+        this.rubberband.dragTo([x, y]);
 
-  get isDrawing() {
-    return this._isDrawing;
-  }
+    onMouseUp = (x, y) => {
+        const {width, height} = this.rubberband.getBoundingClientRect();
 
-  createEditableShape = annotation =>
-    new EditablePolygon(annotation, this.g, this.config, this.env);
+        const minWidth = this.config.minSelectionWidth || 4;
+        const minHeight = this.config.minSelectionHeight || 4;
+
+        if (width >= minWidth || height >= minHeight) {
+            this.rubberband.addPoint([x, y]);
+        } else {
+            this.emit('cancel');
+            this.stop();
+        }
+    }
+
+    onDblClick = (x, y) => {
+        this._isDrawing = false;
+
+        this.rubberband.addPoint([x, y]);
+
+        const shape = this.rubberband.element;
+        shape.annotation = this.rubberband.toSelection();
+        this.emit('complete', shape);
+
+        this.stop();
+    }
+
+    get isDrawing() {
+        return this._isDrawing;
+    }
+
+    createEditableShape = annotation =>
+        new EditablePolygon(annotation, this.g, this.config, this.env);
 
 }
 
 RubberbandPolygonTool.identifier = 'polygon';
 
 RubberbandPolygonTool.supports = annotation => {
-  const selector = annotation.selector('SvgSelector');
-  if (selector)
-    return selector.value?.match(/^<svg.*<polygon/g);
+    const selector = annotation.selector('SvgSelector');
+    if (selector)
+        return selector.value?.match(/^<svg.*<polygon/g);
 }

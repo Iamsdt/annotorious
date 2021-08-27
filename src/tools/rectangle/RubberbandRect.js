@@ -1,12 +1,6 @@
-import { Selection } from '@recogito/recogito-client-core';
-import { SVG_NAMESPACE } from '../../util/SVG';
-import { 
-  drawRect, 
-  drawRectMask,
-  setRectSize, 
-  setRectMaskSize,
-  toRectFragment 
-} from '../../selectors/RectFragment';
+import {Selection} from '@recogito/recogito-client-core';
+import {SVG_NAMESPACE} from '../../util/SVG';
+import {drawRect, drawRectMask, setRectMaskSize, setRectSize, toRectFragment} from '../../selectors';
 
 /**
  * A 'rubberband' selection tool for creating a rectangle by
@@ -14,76 +8,76 @@ import {
  */
 export default class RubberbandRect {
 
-  constructor(anchorX, anchorY, g, env) {
-    this.anchor = [ anchorX, anchorY ];
-    this.opposite = [ anchorX, anchorY ];
+    constructor(anchorX, anchorY, g, env) {
+        this.anchor = [anchorX, anchorY];
+        this.opposite = [anchorX, anchorY];
 
-    this.env = env;
+        this.env = env;
 
-    this.group = document.createElementNS(SVG_NAMESPACE, 'g');
-    
-    this.mask = drawRectMask(env.image, anchorX, anchorY, 2, 2);
-    this.mask.setAttribute('class', 'a9s-selection-mask');
+        this.group = document.createElementNS(SVG_NAMESPACE, 'g');
 
-    this.rect = drawRect(anchorX, anchorY, 2, 2);
-    this.rect.setAttribute('class', 'a9s-selection');
+        this.mask = drawRectMask(env.image, anchorX, anchorY, 2, 2);
+        this.mask.setAttribute('class', 'a9s-selection-mask');
 
-    // We make the selection transparent to 
-    // pointer events because it would interfere with the 
-    // rendered annotations' mouseleave/enter events
-    this.group.style.pointerEvents = 'none';
+        this.rect = drawRect(anchorX, anchorY, 2, 2);
+        this.rect.setAttribute('class', 'a9s-selection');
 
-    // Additionally, selection remains hidden until 
-    // the user actually moves the mouse
-    this.group.style.display = 'none';
+        // We make the selection transparent to
+        // pointer events because it would interfere with the
+        // rendered annotations' mouseleave/enter events
+        this.group.style.pointerEvents = 'none';
 
-    this.group.appendChild(this.mask);
-    this.group.appendChild(this.rect);
+        // Additionally, selection remains hidden until
+        // the user actually moves the mouse
+        this.group.style.display = 'none';
 
-    g.appendChild(this.group);
-  }
+        this.group.appendChild(this.mask);
+        this.group.appendChild(this.rect);
 
-  get bbox() {
-    const w = this.opposite[0] - this.anchor[0];
-    const h = this.opposite[1] - this.anchor[1];
+        g.appendChild(this.group);
+    }
 
-    return {
-      x: w > 0 ? this.anchor[0] : this.opposite[0],
-      y: h > 0 ? this.anchor[1] : this.opposite[1],
-      w: Math.max(1, Math.abs(w)), // Negative values
-      h: Math.max(1, Math.abs(h)) 
-    };
-  }
+    get bbox() {
+        const w = this.opposite[0] - this.anchor[0];
+        const h = this.opposite[1] - this.anchor[1];
 
-  get element() {
-    return this.rect;
-  }
+        return {
+            x: w > 0 ? this.anchor[0] : this.opposite[0],
+            y: h > 0 ? this.anchor[1] : this.opposite[1],
+            w: Math.max(1, Math.abs(w)), // Negative values
+            h: Math.max(1, Math.abs(h))
+        };
+    }
 
-  dragTo = (oppositeX, oppositeY) => {
-    // Make visible
-    this.group.style.display = null;
+    get element() {
+        return this.rect;
+    }
 
-    this.opposite = [ oppositeX, oppositeY ];
-    const { x, y, w, h } = this.bbox;
+    dragTo = (oppositeX, oppositeY) => {
+        // Make visible
+        this.group.style.display = null;
 
-    setRectMaskSize(this.mask, this.env.image, x, y, w, h);
-    setRectSize(this.rect, x, y, w, h);
-  }
+        this.opposite = [oppositeX, oppositeY];
+        const {x, y, w, h} = this.bbox;
 
-  getBoundingClientRect = () => 
-    this.rect.getBoundingClientRect();
+        setRectMaskSize(this.mask, this.env.image, x, y, w, h);
+        setRectSize(this.rect, x, y, w, h);
+    }
 
-  toSelection = () => {
-    const { x, y, w, h } = this.bbox;
-    return new Selection(toRectFragment(x, y, w, h, this.env.image));
-  }
+    getBoundingClientRect = () =>
+        this.rect.getBoundingClientRect();
 
-  destroy = () => {
-    this.group.parentNode.removeChild(this.group);
+    toSelection = () => {
+        const {x, y, w, h} = this.bbox;
+        return new Selection(toRectFragment(x, y, w, h, this.env.image));
+    }
 
-    this.mask = null;
-    this.rect = null;
-    this.group = null;
-  }
+    destroy = () => {
+        this.group.parentNode.removeChild(this.group);
+
+        this.mask = null;
+        this.rect = null;
+        this.group = null;
+    }
 
 }
