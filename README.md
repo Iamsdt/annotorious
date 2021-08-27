@@ -29,15 +29,24 @@ var anno = Annotorious.init({
 });
 ```
 
-pass height and width manually, if you are using other components instead of `img`. That's it. we are done
+pass height and width manually, if you are using other components instead of `img`.
 
 ### Build Project
 
 To build this project, run
 
-```
+```bash
 npm run build
 ```
+
+To import this thing into React App, use this line
+
+```js
+import {Annotorious} from '@recogito/annotorious/dist/annotorious.min';
+import '@recogito/annotorious/dist/annotorious.min.css';
+```
+
+That's it. we are done
 
 
 
