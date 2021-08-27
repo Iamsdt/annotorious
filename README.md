@@ -2,9 +2,38 @@
   <img width="345" src="https://raw.githubusercontent.com/recogito/annotorious/master/annotorious-logo-white-small.png" />
   <br/><br/>
 </p>
-
 A JavaScript image annotation library. Add drawing, commenting and labeling functionality to images
-in Web pages with just a few lines of code. See the [project website](https://recogito.github.io/annotorious/)
+in Web pages with just a few lines of code. 
+
+### Motivation of  this modification:
+
+Using this project we can annotate on any image. But we need something custom, we want to render some rectangular on pdf file (File Viewer). To solve this issue, we used this library and modify some portions to make things work on the `div`.
+
+#### Problem statement: 
+
+```javascript
+<div id="hallstatt">
+    <img src="640px-Hallstatt.jpg" />
+</div>
+```
+
+if we pass the id of `div` instead of `image`, then we can render the box but not those boxes aren't resizable.
+
+### Solution:
+
+```javascript
+var anno = Annotorious.init({
+        image: 'hallstatt',
+        height: 500,
+        width: 500,
+});
+```
+
+pass height and width manually, if you are using other components instead of `img`. That's it. we are done
+
+
+
+See the [project website](https://recogito.github.io/annotorious/)
 for details and live demos.
 
 <img width="620" src="https://raw.githubusercontent.com/recogito/annotorious/master/screenshot.jpg" />
