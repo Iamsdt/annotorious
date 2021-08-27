@@ -34,7 +34,7 @@ export default class AnnotationLayer extends EventEmitter {
             naturalWidth = env.width ?? 0
         }
 
-        if (naturalWidth === undefined) {
+        if (naturalHeight === undefined) {
             naturalHeight = env.height ?? 0
         }
 

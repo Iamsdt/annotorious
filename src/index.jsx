@@ -36,8 +36,8 @@ export class Annotorious {
         //lets take height and width from config
         // and put this things into env
         // this will fix the resize issues
-        this._env.height = config.height ?? 0;
-        this._env.width = config.width ?? 0;
+        this._env.height = config.height;
+        this._env.width = config.width;
 
 
         setLocale(config.locale, config.messages);

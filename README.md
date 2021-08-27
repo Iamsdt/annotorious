@@ -31,6 +31,18 @@ var anno = Annotorious.init({
 
 pass height and width manually, if you are using other components instead of `img`. That's it. we are done
 
+### Build Project
+
+To build this project, run
+
+```
+npm run build
+```
+
+
+
+
+
 
 
 See the [project website](https://recogito.github.io/annotorious/)
