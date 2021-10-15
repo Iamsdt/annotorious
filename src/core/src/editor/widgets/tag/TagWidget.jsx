@@ -37,18 +37,12 @@ const TagWidget = props => {
     }
 
     const onDraftChange = value => {
-
-        console.log("TagWidget tag", value)
-        console.log("TagWidget draft", draftTag)
-        console.log("TagWidget vocabulary", props.vocabulary)
-
         let res = props.vocabulary.indexOf(value)
         if (res === -1) {
             return;
         }
 
         if (!value in props.vocabulary) {
-            console.log("TagWidget not there return", value)
             return
         }
 
@@ -68,10 +62,6 @@ const TagWidget = props => {
         const {draft, ...toSubmit} = tag.label ?
             {...draftTag, value: tag.label, source: tag.uri} :
             {...draftTag, value: tag};
-
-        console.log("TagWidget tag", tag)
-        console.log("TagWidget draft", draft)
-
 
         if (draftTag.value.trim().length === 0) {
             props.onAppendBody(toSubmit);
