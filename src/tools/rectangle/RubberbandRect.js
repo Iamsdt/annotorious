@@ -1,4 +1,5 @@
-import {Selection} from '@recogito/recogito-client-core';
+// import {Selection} from '@recogito/recogito-client-core';
+import {Selection} from '../../core/src';
 import {SVG_NAMESPACE} from '../../util/SVG';
 import {drawRect, drawRectMask, setRectMaskSize, setRectSize, toRectFragment} from '../../selectors';
 
