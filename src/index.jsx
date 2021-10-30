@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom';
 import Emitter from 'tiny-emitter';
 import ImageAnnotator from './ImageAnnotator';
 import {createEnvironment, Selection, setLocale, WebAnnotation} from '@recogito/recogito-client-core';
-// import {createEnvironment, Selection, setLocale, WebAnnotation} from './core/src';
 import '@recogito/recogito-client-core/themes/default';
-// import './core/themes/default';
 
 /**
  * The entrypoint into the application. Provides the

@@ -1,5 +1,4 @@
 import {Selection} from '@recogito/recogito-client-core';
-// import {Selection} from '../../core/src';
 import {toSVGTarget} from '../../selectors';
 import {SVG_NAMESPACE} from '../../util/SVG';
 import Mask from './PolygonMask';

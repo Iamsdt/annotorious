@@ -206,5 +206,3 @@ Tool.supports = annotation => {
 // Tool class serve as a kind of mini-SDK).
 export { default as WebAnnotation } from '@recogito/recogito-client-core/src/WebAnnotation';
 export {default as Selection} from '@recogito/recogito-client-core/src/Selection';
-// export {default as Selection} from '../core/src/Selection';
-// export {default as WebAnnotation} from '../core/src/WebAnnotation';
