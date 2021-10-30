@@ -304,11 +304,11 @@ export default class ImageAnnotator extends Component {
             }
         });
 
-    selectAnnotation = arg => {
-        const selected = this.annotationLayer.selectAnnotation(arg, true);
+    selectAnnotation = (arg, skipEvent=true) => {
+        const selected = this.annotationLayer.selectAnnotation(arg, skipEvent);
 
         if (selected) {
-            this.handleSelect(selected, true);
+            this.handleSelect(selected, skipEvent);
             return selected.annotation.clone();
         } else {
             this.clearState(); // Deselect
