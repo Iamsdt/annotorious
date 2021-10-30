@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import AnnotationLayer from './AnnotationLayer';
-// import {Editor} from '@recogito/recogito-client-core';
-import {Editor} from './core/src';
+import {Editor} from '@recogito/recogito-client-core';
+// import {Editor} from './core/src';
 
 import './ImageAnnotator.scss';
 
