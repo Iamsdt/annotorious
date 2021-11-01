@@ -50,7 +50,7 @@
         <button id="current-tool">RECTANGLE</button>
     </p>
     <div id="hallstatt">
-        <img src="640px-Hallstatt.jpg">
+        <img src="640px-Hallstatt.jpg" height='1000px'>
     </div>
 </div>
 <script>
@@ -58,7 +58,7 @@
         anno = Annotorious.init({
             image: 'hallstatt',
             width: 500,
-            height: 500,
+            height: 1000,
             locale: 'auto',
             widgets: [
                 {widget: 'COMMENT'},
@@ -77,6 +77,12 @@
 
         anno.on('selectAnnotation', function (a, shape) {
             console.log('selected');
+            let value = a.target.selector[0].value
+            console.log('value', value)
+            let pixel = value.split(":")[1]
+            let data = pixel.split(',')
+
+            window.scrollTo(data[0], data[1]);
         });
 
         anno.on('mouseEnterAnnotation', function (a, shape) {
@@ -110,14 +116,42 @@
         anno.loadAnnotations('annotations.w3c.json');
 
         var toolToggle = document.getElementById('current-tool');
+        //{% comment %} toolToggle.addEventListener('click', function () {
+        //    if (toolToggle.innerHTML == 'RECTANGLE') {
+        //        toolToggle.innerHTML = 'POLYGON';
+                //anno.setDrawingTool('polygon');
+            //} else {
+                //toolToggle.innerHTML = 'RECTANGLE';
+                //anno.setDrawingTool('rect');
+        //    }
+        //});{% endcomment %}
+
         toolToggle.addEventListener('click', function () {
-            if (toolToggle.innerHTML == 'RECTANGLE') {
-                toolToggle.innerHTML = 'POLYGON';
-                anno.setDrawingTool('polygon');
-            } else {
-                toolToggle.innerHTML = 'RECTANGLE';
-                anno.setDrawingTool('rect');
-            }
+            let annotation ={ 
+    "@context": "http://www.w3.org/ns/anno.jsonld",
+    "id": "#a88b22d0-6106-4872-9435-c78b5e89fede",
+    "type": "Annotation",
+    "body": [{
+      "type": "TextualBody",
+      "value": "It's Hallstatt in Upper Austria"
+    }, {
+      "type": "TextualBody",
+      "purpose": "tagging",
+      "value": "Hallstatt"
+    }, {
+      "type": "TextualBody",
+      "purpose": "tagging",
+      "value": "Upper Austria"
+    }],
+    "target": {
+      "selector": [{
+        "type": "FragmentSelector",
+        "conformsTo": "http://www.w3.org/TR/media-frags/",
+        "value": "xywh=pixel:273,171,123,94"
+      }]
+    }
+  }
+            anno.selectAnnotation(annotation, false);
         });
     }
 </script>

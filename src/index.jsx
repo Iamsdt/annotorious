@@ -203,8 +203,8 @@ export class Annotorious {
     saveSelected = () =>
         this._app.current.saveSelected();
 
-    selectAnnotation = annotationOrId => {
-        const selected = this._app.current.selectAnnotation(this._wrap(annotationOrId));
+    selectAnnotation = (annotationOrId, skipEvent=true) => {
+        const selected = this._app.current.selectAnnotation(this._wrap(annotationOrId), skipEvent);
         return selected?.underlying;
     }
 
