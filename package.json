@@ -37,7 +37,6 @@
   },
   "dependencies": {
     "@recogito/recogito-client-core": "git+https://github.com/10XScale-in/recogito-client-core.git",
-    "@recogito/recogito-client-core": "git+https://github.com/10XScale-in/recogito-client-core.git",
     "preact": "^10.5.13",
     "tiny-emitter": "^2.1.0"
   }
